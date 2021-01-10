@@ -65,6 +65,7 @@ def basic(request):
 
             image_data = open("graph.png", "rb").read()
             return HttpResponse(image_data, content_type="image/png")
+            
          
         else:
             return HttpResponse("please enter valid symbol")
