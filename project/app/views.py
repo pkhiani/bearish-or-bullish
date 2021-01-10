@@ -10,7 +10,7 @@ from csv import writer
 def basic(request):
     if request.method == 'POST':
         name = request.POST.get('name', '')
-        # symbol = input("Enter a symbol you want to find the news for: ")
+        
         if len(name) >= 1:
             url = 'https://finviz.com/quote.ashx?t='
 
@@ -20,6 +20,11 @@ def basic(request):
 
             articles = soup.find_all("table", {"class": "fullview-news-outer"})
 
+            with open('articles.csv', 'w') as csv_file:
+                csv_writer = writer(csv_file)
+                headers = ['Headline']
+                csv_writer.writerow(headers)  
+
             for newsElement in articles:
                 rows = newsElement.find_all('tr')
                 # print(rows)
@@ -28,7 +33,7 @@ def basic(request):
                 for row in rows:
 
                     article_name = row.find("div", {"class": "news-link-left"}).get_text().strip()
-
+                    csv_writer.writerow([article_name])
 
                     content = article_name + " " 
 
