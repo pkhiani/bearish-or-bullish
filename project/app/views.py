@@ -33,7 +33,7 @@ def basic(request):
                 for row in rows:
 
                     article_name = row.find("div", {"class": "news-link-left"}).get_text().strip()
-                    csv_writer.writerow([article_name])
+                    #csv_writer.writerow([article_name])
 
                     content = article_name + " " 
 
