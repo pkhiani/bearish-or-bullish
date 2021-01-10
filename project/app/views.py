@@ -41,10 +41,6 @@ def basic(request):
                     csv_writer.writerow([article_name])
 
 
-
-
-
-
             for newsElement in articles:
                 rows = newsElement.find_all('tr')
                 # print(rows)
@@ -60,7 +56,7 @@ def basic(request):
                     lst.append('<br/>' + str(content) + '<br/>')
                     
 
-                return HttpResponse(lst)
+                return HttpResponse('<img src="../graph.png" alt="">')
          
         else:
             return HttpResponse("please enter valid symbol")
