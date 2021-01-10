@@ -1,62 +1,70 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
+from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+import pandas as pd
+import matplotlib.pyplot as plt
+
 import requests
 
-from csv import writer
-#
-
+fin_url = 'https://finviz.com/quote.ashx?t='
+parsed_data = []
 
 def basic(request):
     if request.method == 'POST':
         name = request.POST.get('name', '')
         
         if len(name) >= 1:
-            url = 'https://finviz.com/quote.ashx?t='
+            
+            tickers = [name]
 
-            res = requests.get(url + name, headers={'User-Agent': 'Mozilla/5.0'})
+            news_tables = {}
 
-            soup = BeautifulSoup(res.text, "html.parser")
+            for ticker in tickers:
+                url = fin_url + ticker
 
-            articles = soup.find_all("table", {"class": "fullview-news-outer"})
+                req = Request(url=url, headers={'user-agent': 'my-app'})
+                response = urlopen(req)
 
-            with open('articles.csv', 'w') as csv_file:
-                csv_writer = writer(csv_file)
-                headers = ["Headline: "]
-                csv_writer.writerow(headers)  
+                html = BeautifulSoup(response, features='html.parser')
+                news_table = html.find(id='news-table')
+                news_tables[ticker] = news_table
 
 
-                for newsElement in articles:
-                    rows = newsElement.find_all('tr')
-                    # print(rows)
-                    lst = []
+            for ticker, news_table in news_tables.items():
 
-                for row in rows:
+                for row in news_table.findAll('tr'):
 
-                    article_name = row.find("div", {"class": "news-link-left"}).get_text().strip()
+                    title = row.a.text
+                    date_data = row.td.text.split(' ')
+
+                    if len(date_data) == 1:
+                        time = date_data[0]
+                    else:
+                        date = date_data[0]
+                        time = date_data[1]
+
+                    parsed_data.append([ticker, date, time, title])
                     
 
-                    # content = article_name + " " 
+            df = pd.DataFrame(parsed_data, columns=['ticker', 'date', 'time', 'title'])
 
-                    csv_writer.writerow([article_name])
+            vader = SentimentIntensityAnalyzer()
 
+            f = lambda title: vader.polarity_scores(title)['compound']
+            df['compound'] = df['title'].apply(f)
+            df['date'] = pd.to_datetime(df.date).dt.date
 
-            for newsElement in articles:
-                rows = newsElement.find_all('tr')
-                # print(rows)
-                lst = []
+            plt.figure(figsize=(8,8))
+            mean_df = df.groupby(['ticker', 'date']).mean().unstack()
+            mean_df = mean_df.xs('compound', axis="columns")
+            mean_df.plot(kind='bar')
+            plt.savefig('graph.png')
+            #plt.show()
 
-                for row in rows:
-
-                    article_name = row.find("div", {"class": "news-link-left"}).get_text().strip()
-                    
-
-                    content = article_name + " " 
-
-                    lst.append('<br/>' + str(content) + '<br/>')
-                    
-
-                return HttpResponse('<img src="../graph.png" alt="">')
+            image_data = open("graph.png", "rb").read()
+            return HttpResponse(image_data, content_type="image/png")
          
         else:
             return HttpResponse("please enter valid symbol")
