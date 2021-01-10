@@ -26,12 +26,11 @@ def basic(request):
                 lst = []
 
                 for row in rows:
-                    link = row.find("a", {"class": "tab-link-news"})['href']
-                    article_name = row.find("div", {"class": "news-link-left"}).get_text().strip()
-                    source = row.find("div", {"class": "news-link-right"}).get_text().strip()
-                    details = row.find('td').get_text().strip()
 
-                    content = '<b>'"Headline: "'</b>' + article_name + " " + '<b>'"Link: "'</b>' + link  + " "  + '<b>'"Timestamp: "'</b>' + details + " " + '<b>'"Source: "'</b>' + source
+                    article_name = row.find("div", {"class": "news-link-left"}).get_text().strip()
+
+
+                    content = article_name + " " 
 
                     lst.append('<br/>' + str(content) + '<br/>')
                     
