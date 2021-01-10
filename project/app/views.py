@@ -22,8 +22,28 @@ def basic(request):
 
             with open('articles.csv', 'w') as csv_file:
                 csv_writer = writer(csv_file)
-                headers = ['Headline']
+                headers = ["Headline: "]
                 csv_writer.writerow(headers)  
+
+
+                for newsElement in articles:
+                    rows = newsElement.find_all('tr')
+                    # print(rows)
+                    lst = []
+
+                for row in rows:
+
+                    article_name = row.find("div", {"class": "news-link-left"}).get_text().strip()
+                    
+
+                    # content = article_name + " " 
+
+                    csv_writer.writerow([article_name])
+
+
+
+
+
 
             for newsElement in articles:
                 rows = newsElement.find_all('tr')
@@ -33,7 +53,7 @@ def basic(request):
                 for row in rows:
 
                     article_name = row.find("div", {"class": "news-link-left"}).get_text().strip()
-                    #csv_writer.writerow([article_name])
+                    
 
                     content = article_name + " " 
 
@@ -41,10 +61,10 @@ def basic(request):
                     
 
                 return HttpResponse(lst)
+         
         else:
             return HttpResponse("please enter valid symbol")
     return render(request, 'basic.html')
-
 
 
 
