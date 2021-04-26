@@ -8,3 +8,5 @@ A Web Application to perform a Sentiment Analysis of recent news of the past few
 2. run python manage.py runserver
 3. go to 127.0.0.1:8000 on a web browser
 4. Enter the desired symbol and view results
+
+View full project on [Devpost](https://devpost.com/software/bearish-or-bullish)
